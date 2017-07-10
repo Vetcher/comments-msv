@@ -18,7 +18,7 @@ func GetCommentEndpoint(svc CommentService) endpoint.Endpoint {
 		if err != nil {
 			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return &JsonResponse{d, nil}, nil
+		return &JsonResponse{d, ""}, nil
 	}
 }
 
@@ -29,7 +29,7 @@ func PostCommentEndpoint(svc CommentService) endpoint.Endpoint {
 		if err != nil {
 			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return &JsonResponse{d, nil}, nil
+		return &JsonResponse{d, ""}, nil
 	}
 }
 
@@ -40,7 +40,7 @@ func DeleteCommentEndpoint(svc CommentService) endpoint.Endpoint {
 		if err != nil {
 			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return &JsonResponse{d, nil}, nil
+		return &JsonResponse{d, ""}, nil
 	}
 }
 
@@ -51,6 +51,6 @@ func GetCommentsByAuthorIDEndpoint(svc CommentService) endpoint.Endpoint {
 		if err != nil {
 			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return &JsonResponse{d, nil}, nil
+		return &JsonResponse{d, ""}, nil
 	}
 }

@@ -36,7 +36,7 @@ type DBConfig struct {
 	Port     *uint
 }
 
-func InitDB() *Database {
+func Init() *Database {
 	var db Database
 	db.config = parseDBConfig()
 	connectionParams := fmt.Sprintf("host=%v port=%d user=%v dbname=%v sslmode=disable password=%v",
