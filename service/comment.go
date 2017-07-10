@@ -4,36 +4,41 @@ import (
 	"github.com/vetcher/comments-msv/models"
 )
 
-type CommentsServiceInterface interface {
+type CommentService interface {
 	GetCommentByID(id uint) (*models.Comment, error)
-	GetCommentsByAuthorId(id uint) ([]*models.Comment, error)
+	GetCommentsByAuthorID(id uint) ([]*models.Comment, error)
 	PostComment(authorId uint, text string) (*models.Comment, error)
-	DeleteComment(id uint) (bool, error)
+	DeleteCommentByID(id uint) (bool, error)
 }
 
-type CommentsService struct {
+type commentsService struct {
 	db *models.Database
 }
 
-func (svc *CommentsService) Init() {
-	svc.db = models.InitDB()
+func NewCommentService() *commentsService {
+	return commentsService{}.Init()
 }
 
-func (svc CommentsService) GetCommentByID(id uint) (*models.Comment, error) {
+func (svc *commentsService) Init() *commentsService {
+	svc.db = models.InitDB()
+	return svc
+}
+
+func (svc commentsService) GetCommentByID(id uint) (*models.Comment, error) {
 	return svc.db.SelectCommentByID(id)
 }
 
-func (svc CommentsService) PostComment(authorId uint, text string) (*models.Comment, error) {
+func (svc commentsService) PostComment(authorId uint, text string) (*models.Comment, error) {
 	return svc.db.PostComment(&models.Comment{
 		Text:     text,
 		AuthorID: authorId,
 	})
 }
 
-func (svc CommentsService) GetCommentsByAuthorId(id uint) ([]*models.Comment, error) {
+func (svc commentsService) GetCommentsByAuthorID(id uint) ([]*models.Comment, error) {
 	return svc.db.LoadCommentsForUser(id)
 }
 
-func (svc CommentsService) DeleteComment(id uint) (bool, error) {
+func (svc commentsService) DeleteCommentByID(id uint) (bool, error) {
 	return svc.db.DeleteComment(id)
 }

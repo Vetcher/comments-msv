@@ -17,13 +17,9 @@ func (db *Database) PostComment(c *Comment) (*Comment, error) {
 }
 
 func (db *Database) DeleteComment(id uint) (bool, error) {
-	var temp Comment
-	if err := db.db.Where("id = ?", id).First(&temp); err.Error != nil {
+	if err := db.db.Delete(Comment{}, "id = ?", id); err.Error != nil {
 		return false, DBError(err.Error)
 	} else {
-		if err := db.db.Delete(temp); err.Error != nil {
-			return false, DBError(err.Error)
-		}
 		return true, nil
 	}
 }

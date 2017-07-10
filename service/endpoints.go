@@ -8,49 +8,49 @@ import (
 
 type JsonResponse struct {
 	Data interface{} `json:"data"`
-	//Err  string      `json:"error,omitempty"`
+	Err  string      `json:"error,omitempty"`
 }
 
-func GetCommentEndpoint(svc CommentsServiceInterface) endpoint.Endpoint {
+func GetCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestOnlyWithId)
 		d, err := svc.GetCommentByID(req.ID)
 		if err != nil {
-			return nil, err
+			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return JsonResponse{d}, nil
+		return &JsonResponse{d, nil}, nil
 	}
 }
 
-func PostCommentEndpoint(svc CommentsServiceInterface) endpoint.Endpoint {
+func PostCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestPostComment)
 		d, err := svc.PostComment(req.AuthorID, req.Text)
 		if err != nil {
-			return nil, err
+			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return JsonResponse{d}, nil
+		return &JsonResponse{d, nil}, nil
 	}
 }
 
-func DeleteCommentEndpoint(svc CommentsServiceInterface) endpoint.Endpoint {
+func DeleteCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestOnlyWithId)
-		d, err := svc.DeleteComment(req.ID)
+		d, err := svc.DeleteCommentByID(req.ID)
 		if err != nil {
-			return nil, err
+			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return JsonResponse{d}, nil
+		return &JsonResponse{d, nil}, nil
 	}
 }
 
-func GetCommentsForUserEndpoint(svc CommentsServiceInterface) endpoint.Endpoint {
+func GetCommentsByAuthorIDEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestOnlyWithId)
-		d, err := svc.GetCommentsByAuthorId(req.ID)
+		d, err := svc.GetCommentsByAuthorID(req.ID)
 		if err != nil {
-			return nil, err
+			return &JsonResponse{nil, err.Error()}, nil
 		}
-		return JsonResponse{d}, nil
+		return &JsonResponse{d, nil}, nil
 	}
 }

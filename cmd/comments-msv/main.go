@@ -9,32 +9,31 @@ import (
 )
 
 func main() {
-	svc := service.CommentsService{}
-	svc.Init()
+	svc := service.NewCommentService()
 	handlerGetByID := httptransport.NewServer(
 		service.GetCommentEndpoint(svc),
-		service.DecodeRequestOnlyWithId,
+		service.DecodeRequestOnlyWithID,
 		service.ServeJSON,
 	)
 	handlerPost := httptransport.NewServer(
 		service.PostCommentEndpoint(svc),
-		service.DecodeRequestOnlyWithId,
-		service.ServeJSON,
-	)
-	handlerDelete := httptransport.NewServer(
-		service.DeleteCommentEndpoint(svc),
 		service.DecodeRequestPostComment,
 		service.ServeJSON,
 	)
-	handlerGetForAuthor := httptransport.NewServer(
-		service.GetCommentsForUserEndpoint(svc),
-		service.DecodeRequestOnlyWithId,
+	handlerDeleteByID := httptransport.NewServer(
+		service.DeleteCommentEndpoint(svc),
+		service.DecodeRequestOnlyWithID,
+		service.ServeJSON,
+	)
+	handlerGetByAuthorID := httptransport.NewServer(
+		service.GetCommentsByAuthorIDEndpoint(svc),
+		service.DecodeRequestOnlyWithID,
 		service.ServeJSON,
 	)
 	http.Handle("/comment/get", handlerGetByID)
 	http.Handle("/comment/post", handlerPost)
-	http.Handle("/comment/del", handlerDelete)
-	http.Handle("/comments/author", handlerGetForAuthor)
+	http.Handle("/comment/del", handlerDeleteByID)
+	http.Handle("/comments/author", handlerGetByAuthorID)
 	log.Println("Serve :8081")
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
