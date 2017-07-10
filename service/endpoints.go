@@ -6,11 +6,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type JsonResponse struct {
-	Data interface{} `json:"data"`
-	Err  string      `json:"error,omitempty"`
-}
-
 func GetCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestOnlyWithId)

@@ -61,5 +61,5 @@ func (db *Database) Close() {
 }
 
 func DBError(err error) error {
-	return fmt.Errorf("Database error: %v", err)
+	return fmt.Errorf("database error: %v", err)
 }

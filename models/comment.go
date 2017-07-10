@@ -1,11 +1,15 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"log"
+
+	"github.com/jinzhu/gorm"
+)
 
 type Comment struct {
 	gorm.Model
 	Text     string `json:"text"`
-	AuthorID uint   `gorm:"index" json:"author"`
+	AuthorID uint   `gorm:"index" json:"author_id"`
 }
 
 func (db *Database) PostComment(c *Comment) (*Comment, error) {
@@ -17,7 +21,13 @@ func (db *Database) PostComment(c *Comment) (*Comment, error) {
 }
 
 func (db *Database) DeleteComment(id uint) (bool, error) {
-	if err := db.db.Delete(Comment{}, "id = ?", id); err.Error != nil {
+	var c Comment
+	err := db.db.Where("id = ?", id).First(&c)
+	if err != nil {
+		log.Println(err.Error)
+	}
+	log.Println(c)
+	if err := db.db.Delete(&Comment{}, "id = ?", id); err.Error != nil {
 		return false, DBError(err.Error)
 	} else {
 		return true, nil

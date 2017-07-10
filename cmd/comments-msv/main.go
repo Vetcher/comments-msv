@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stderr, "service: ", log.Lshortfile|log.Ltime)
+	logger := log.New(os.Stdout, "service: ", log.Lshortfile|log.Ltime)
 	db := models.NewDatabase()
 	svc := service.NewCommentService(db)
 	handlerGetByID := httptransport.NewServer(
@@ -20,8 +20,11 @@ func main() {
 		service.DecodeRequestOnlyWithID,
 		service.ServeJSON,
 	)
+	postCommentEndpoint := service.PostCommentEndpoint(svc)
+	postCommentEndpoint = service.ErrorLoggingMiddleware(logger)(postCommentEndpoint)
+	postCommentEndpoint = service.TransportLoggingMiddleware(logger)(postCommentEndpoint)
 	handlerPost := httptransport.NewServer(
-		service.TransportLoggingMiddleware(logger)(service.PostCommentEndpoint(svc)),
+		postCommentEndpoint,
 		service.DecodeRequestPostComment,
 		service.ServeJSON,
 	)
