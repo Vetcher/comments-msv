@@ -10,6 +10,7 @@ import (
 
 func main() {
 	svc := service.CommentsService{}
+	svc.Init()
 	handlerGetByID := httptransport.NewServer(
 		service.GetCommentEndpoint(svc),
 		service.DecodeRequestOnlyWithId,

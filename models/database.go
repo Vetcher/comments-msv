@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 const POSTGRES string = "postgres"
