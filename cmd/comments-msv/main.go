@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stdout, "service: ", log.Lshortfile|log.Ltime)
-	db := models.Init()
+	logger := log.New(os.Stderr, "service: ", log.Lshortfile|log.Ltime)
+	db := models.NewDatabase()
 	svc := service.NewCommentService(db)
 	handlerGetByID := httptransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.GetCommentEndpoint(svc)),
