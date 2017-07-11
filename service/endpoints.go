@@ -8,7 +8,7 @@ import (
 
 func GetCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(RequestOnlyWithId)
+		req := request.(RequestOnlyWithID)
 		d, err := svc.GetCommentByID(req.ID)
 		if err != nil {
 			return &JsonResponse{nil, err.Error()}, nil
@@ -30,7 +30,7 @@ func PostCommentEndpoint(svc CommentService) endpoint.Endpoint {
 
 func DeleteCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(RequestOnlyWithId)
+		req := request.(RequestOnlyWithID)
 		d, err := svc.DeleteCommentByID(req.ID)
 		if err != nil {
 			return &JsonResponse{nil, err.Error()}, nil
@@ -41,7 +41,7 @@ func DeleteCommentEndpoint(svc CommentService) endpoint.Endpoint {
 
 func GetCommentsByAuthorIDEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(RequestOnlyWithId)
+		req := request.(RequestOnlyWithID)
 		d, err := svc.GetCommentsByAuthorID(req.ID)
 		if err != nil {
 			return &JsonResponse{nil, err.Error()}, nil

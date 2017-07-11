@@ -1,6 +1,6 @@
 package service
 
-type RequestOnlyWithId struct {
+type RequestOnlyWithID struct {
 	ID uint `json:"id"`
 }
 

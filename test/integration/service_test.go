@@ -60,6 +60,9 @@ func TestPostComment(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
+	if c.Err != "" {
+		t.Fatal(c.Err)
+	}
 	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText) {
 		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
 			Data: &Comment{
@@ -83,7 +86,9 @@ func TestGetComment(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
-
+	if c.Err != "" {
+		t.Fatal(c.Err)
+	}
 	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText && c.Data.ID == 1) {
 		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
 			Data: &Comment{
