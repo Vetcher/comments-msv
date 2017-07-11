@@ -1,8 +1,6 @@
 package models
 
 import (
-	"log"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -21,13 +19,7 @@ func (db *Database) PostComment(c *Comment) (*Comment, error) {
 }
 
 func (db *Database) DeleteComment(id uint) (bool, error) {
-	var c Comment
-	err := db.db.Where("id = ?", id).First(&c)
-	if err != nil {
-		log.Println(err.Error)
-	}
-	log.Println(c)
-	if err := db.db.Delete(&Comment{}, "id = ?", id); err.Error != nil {
+	if err := db.db.Delete(Comment{}, "id = ?", id); err.Error != nil {
 		return false, DBError(err.Error)
 	} else {
 		return true, nil
@@ -44,7 +36,7 @@ func (db *Database) SelectCommentByID(id uint) (*Comment, error) {
 
 func (db *Database) LoadCommentsForUser(userId uint) ([]*Comment, error) {
 	var comments []*Comment
-	if err := db.db.Where("author_id = ?", userId); err.Error != nil {
+	if err := db.db.Where("author_id = ?", userId).Find(&comments); err.Error != nil {
 		return nil, DBError(err.Error)
 	}
 	return comments, nil
