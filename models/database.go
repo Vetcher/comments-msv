@@ -24,6 +24,7 @@ func parseDBConfig() *DBConfig {
 		Port:     flag.Uint("port", 5432, "Postgres port"),
 		Host:     flag.String("host", "localhost", "Address of server"),
 	}
+	flag.Parse()
 	return &conf
 }
 

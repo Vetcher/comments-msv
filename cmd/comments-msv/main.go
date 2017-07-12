@@ -7,8 +7,6 @@ import (
 
 	"net"
 
-	"flag"
-
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/vetcher/comments-msv/models"
@@ -18,7 +16,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func startHTTPService(db *models.Database) {
+func startHTTPService(db *models.Database) error {
 	logger := log.New(os.Stdout, "http | ", log.Lshortfile|log.Ltime)
 	svc := service.NewCommentService(db)
 	handlerGetByID := httptransport.NewServer(
@@ -46,10 +44,10 @@ func startHTTPService(db *models.Database) {
 	http.Handle("/comment/del", handlerDeleteByID)
 	http.Handle("/comments/author", handlerGetByAuthorID)
 	logger.Println("Serve :8081")
-	logger.Println(http.ListenAndServe(":8081", nil))
+	return http.ListenAndServe(":8081", nil)
 }
 
-func startGRPCService(db *models.Database) {
+func startGRPCService(db *models.Database) error {
 	logger := log.New(os.Stdout, "grpc | ", log.Lshortfile|log.Ltime)
 	lis, err := net.Listen("tcp", ":10000")
 	if err != nil {
@@ -85,12 +83,17 @@ func startGRPCService(db *models.Database) {
 	grpcServer := grpc.NewServer()
 	pb.RegisterCommentSVCServer(grpcServer, server)
 	logger.Println("Serve :10000")
-	logger.Println(grpcServer.Serve(lis))
+	return grpcServer.Serve(lis)
 }
 
 func main() {
 	db := models.NewDatabase()
-	flag.Parse()
-	go startHTTPService(db)
-	startGRPCService(db)
+	errChan := make(chan error)
+	go func() {
+		errChan <- startHTTPService(db)
+	}()
+	go func() {
+		errChan <- startGRPCService(db)
+	}()
+	log.Fatal(<-errChan)
 }
