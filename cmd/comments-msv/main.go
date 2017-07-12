@@ -17,7 +17,7 @@ import (
 )
 
 func startHTTPService(db *models.Database) error {
-	logger := log.New(os.Stdout, "http | ", log.Lshortfile|log.Ltime)
+	logger := log.New(os.Stdout, "http | ", log.Ltime)
 	svc := service.NewCommentService(db)
 	handlerGetByID := httptransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.GetCommentEndpoint(svc)),
@@ -48,7 +48,7 @@ func startHTTPService(db *models.Database) error {
 }
 
 func startGRPCService(db *models.Database) error {
-	logger := log.New(os.Stdout, "grpc | ", log.Lshortfile|log.Ltime)
+	logger := log.New(os.Stdout, "grpc | ", log.Ltime)
 	lis, err := net.Listen("tcp", ":10000")
 	if err != nil {
 		logger.Fatalf("Can't listen: %v", err)

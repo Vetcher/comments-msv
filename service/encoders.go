@@ -15,14 +15,20 @@ func ServeJSON(_ context.Context, w http.ResponseWriter, response interface{}) e
 
 func EncodeGRPCResponseComment(_ context.Context, svcResp interface{}) (interface{}, error) {
 	resp := svcResp.(*JsonResponse)
-	comment := resp.Data.(*models.Comment)
+	if resp.Data != nil {
+		comment := resp.Data.(*models.Comment)
+		return &pb.ResponseComment{
+			Data: &pb.Comment{
+				Id:       uint32(comment.ID),
+				Text:     comment.Text,
+				AuthorId: uint32(comment.AuthorID),
+			},
+			Err: resp.Err,
+		}, nil
+	}
 	return &pb.ResponseComment{
-		Data: &pb.Comment{
-			Id:       uint32(comment.ID),
-			Text:     comment.Text,
-			AuthorId: uint32(comment.AuthorID),
-		},
-		Err: resp.Err,
+		Data: nil,
+		Err:  resp.Err,
 	}, nil
 }
 
@@ -50,8 +56,18 @@ func ConvDBCommentsToPBComments(coms []*models.Comment) []*pb.Comment {
 
 func EncodeGRPCResponseCommentsByAuthorID(_ context.Context, svcResp interface{}) (interface{}, error) {
 	resp := svcResp.(*JsonResponse)
-	return pb.ResponseCommentsByAuthorID{
+	return &pb.ResponseCommentsByAuthorID{
 		Comments: ConvDBCommentsToPBComments(resp.Data.([]*models.Comment)),
 		Err:      resp.Err,
 	}, nil
+}
+
+func EncodeGRPCRequestOnlyWithID(_ context.Context, svcReq interface{}) (interface{}, error) {
+	req := svcReq.(*RequestOnlyWithID)
+	return &pb.RequestWithID{Id: uint32(req.ID)}, nil
+}
+
+func EncodeGRPCRequestPostComment(_ context.Context, svcReq interface{}) (interface{}, error) {
+	req := svcReq.(*RequestPostComment)
+	return &pb.Comment{AuthorId: uint32(req.AuthorID), Text: req.Text}, nil
 }

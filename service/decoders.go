@@ -39,3 +39,27 @@ func DecodeGRPCRequestPostComment(_ context.Context, grpcReq interface{}) (inter
 		AuthorID: uint(req.AuthorId),
 	}, nil
 }
+
+func DecodeGRPCResponseComment(_ context.Context, grpcResp interface{}) (interface{}, error) {
+	resp := grpcResp.(*pb.ResponseComment)
+	return JsonResponse{
+		Data: resp.Data,
+		Err:  resp.Err,
+	}, nil
+}
+
+func DecodeGRPCResponseCommentsByAuthorID(_ context.Context, grpcResp interface{}) (interface{}, error) {
+	resp := grpcResp.(*pb.ResponseCommentsByAuthorID)
+	return JsonResponse{
+		Data: resp.Comments,
+		Err:  resp.Err,
+	}, nil
+}
+
+func DecodeGRPCResponseBool(_ context.Context, grpcResp interface{}) (interface{}, error) {
+	resp := grpcResp.(*pb.ResponseWithBool)
+	return JsonResponse{
+		Data: resp.Ok,
+		Err:  resp.Err,
+	}, nil
+}

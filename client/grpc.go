@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
+	"github.com/jinzhu/gorm"
 	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service"
 	"github.com/vetcher/comments-msv/service/pb"
@@ -20,44 +21,82 @@ type endpoints struct {
 	GetCommentsByAuthorIDEndpoint endpoint.Endpoint
 }
 
+func str2err(str string) error {
+	if str == "" {
+		return nil
+	}
+	return errors.New(str)
+}
+
 func (e endpoints) GetCommentByID(id uint) (*models.Comment, error) {
 	req := service.RequestOnlyWithID{ID: id}
-	resp, err := e.GetCommentByIDEndpoint(context.Background(), req)
+	resp, err := e.GetCommentByIDEndpoint(context.Background(), &req)
 	if err != nil {
 		return nil, err
 	}
-	// возможно, errors.New не нужна...
-	return resp.(service.JsonResponse).Data.(*models.Comment), errors.New(resp.(service.JsonResponse).Err)
+	if resp.(service.JsonResponse).Data == nil {
+		return nil, str2err(resp.(service.JsonResponse).Err)
+	}
+	data := resp.(service.JsonResponse).Data.(*pb.Comment)
+	if data == nil {
+		return nil, str2err(resp.(service.JsonResponse).Err)
+	}
+	return &models.Comment{
+		Text:     data.Text,
+		AuthorID: uint(data.AuthorId),
+		Model: gorm.Model{
+			ID: uint(data.Id),
+		},
+	}, str2err(resp.(service.JsonResponse).Err)
 }
 
 func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, error) {
 	req := service.RequestPostComment{Text: text, AuthorID: authorId}
-	resp, err := e.PostCommentEndpoint(context.Background(), req)
+	resp, err := e.PostCommentEndpoint(context.Background(), &req)
 	if err != nil {
 		return nil, err
 	}
-	// возможно, errors.New не нужна...
-	return resp.(service.JsonResponse).Data.(*models.Comment), errors.New(resp.(service.JsonResponse).Err)
+	data := resp.(service.JsonResponse).Data.(*pb.Comment)
+	return &models.Comment{
+		Text:     data.Text,
+		AuthorID: uint(data.AuthorId),
+		Model: gorm.Model{
+			ID: uint(data.Id),
+		},
+	}, str2err(resp.(service.JsonResponse).Err)
 }
 
 func (e endpoints) DeleteCommentByID(id uint) (bool, error) {
 	req := service.RequestOnlyWithID{ID: id}
-	resp, err := e.DeleteCommentByIDEndpoint(context.Background(), req)
+	resp, err := e.DeleteCommentByIDEndpoint(context.Background(), &req)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
-	// возможно, errors.New не нужна...
-	return resp.(service.JsonResponse).Data.(bool), errors.New(resp.(service.JsonResponse).Err)
+	return resp.(service.JsonResponse).Data.(bool), str2err(resp.(service.JsonResponse).Err)
 }
 
 func (e endpoints) GetCommentsByAuthorID(id uint) ([]*models.Comment, error) {
 	req := service.RequestOnlyWithID{ID: id}
-	resp, err := e.GetCommentsByAuthorIDEndpoint(context.Background(), req)
+	resp, err := e.GetCommentsByAuthorIDEndpoint(context.Background(), &req)
 	if err != nil {
 		return nil, err
 	}
-	// возможно, errors.New не нужна...
-	return resp.(service.JsonResponse).Data.([]*models.Comment), errors.New(resp.(service.JsonResponse).Err)
+	data := resp.(service.JsonResponse).Data.([]*pb.Comment)
+	return ConvPBToModelComments(data), str2err(resp.(service.JsonResponse).Err)
+}
+
+func ConvPBToModelComments(data []*pb.Comment) []*models.Comment {
+	var comments []*models.Comment
+	for _, x := range data {
+		comments = append(comments, &models.Comment{
+			AuthorID: uint(x.AuthorId),
+			Text:     x.Text,
+			Model: gorm.Model{
+				ID: uint(x.Id),
+			},
+		})
+	}
+	return comments
 }
 
 func NewClient(conn *grpc.ClientConn) service.CommentService {
@@ -65,33 +104,33 @@ func NewClient(conn *grpc.ClientConn) service.CommentService {
 		conn,
 		"pb.CommentSVC",
 		"GetCommentByID",
-		service.DecodeGRPCRequestWithID,
-		service.EncodeGRPCResponseComment,
+		service.EncodeGRPCRequestOnlyWithID,
+		service.DecodeGRPCResponseComment,
 		pb.ResponseComment{},
 	).Endpoint()
 	postCommentEndpoint := grpctransport.NewClient(
 		conn,
 		"pb.CommentSVC",
 		"PostComment",
-		service.DecodeGRPCRequestPostComment,
-		service.EncodeGRPCResponseComment,
+		service.EncodeGRPCRequestPostComment,
+		service.DecodeGRPCResponseComment,
 		pb.ResponseComment{},
 	).Endpoint()
 	deleteCommentByIDEndpoint := grpctransport.NewClient(
 		conn,
 		"pb.CommentSVC",
 		"DeleteCommentByID",
-		service.DecodeGRPCRequestWithID,
-		service.EncodeGRPCResponseBool,
+		service.EncodeGRPCRequestOnlyWithID,
+		service.DecodeGRPCResponseBool,
 		pb.ResponseWithBool{},
 	).Endpoint()
 	getCommentsByAuthorIDEndpoint := grpctransport.NewClient(
 		conn,
 		"pb.CommentSVC",
 		"GetCommentsByAuthorID",
-		service.DecodeGRPCRequestWithID,
-		service.EncodeGRPCResponseCommentsByAuthorID,
-		pb.ResponseWithBool{},
+		service.EncodeGRPCRequestOnlyWithID,
+		service.DecodeGRPCResponseCommentsByAuthorID,
+		pb.ResponseCommentsByAuthorID{},
 	).Endpoint()
 
 	return endpoints{
