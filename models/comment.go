@@ -31,7 +31,6 @@ func (db *Database) DeleteComment(id uint) (bool, error) {
 func (db *Database) SelectCommentByID(id uint) (*Comment, error) {
 	var c Comment
 	if err := db.db.Where("id = ?", id).First(&c); err.Error != nil {
-		log.Println(err.Error)
 		return nil, DBError(err.Error)
 	}
 	return &c, nil
