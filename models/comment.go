@@ -1,8 +1,6 @@
 package models
 
 import (
-	"log"
-
 	"github.com/jinzhu/gorm"
 )
 

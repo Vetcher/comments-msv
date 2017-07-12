@@ -34,9 +34,6 @@ func (e endpoints) GetCommentByID(id uint) (*models.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.(service.JsonResponse).Data == nil {
-		return nil, str2err(resp.(service.JsonResponse).Err)
-	}
 	data := resp.(service.JsonResponse).Data.(*pb.Comment)
 	if data == nil {
 		return nil, str2err(resp.(service.JsonResponse).Err)
@@ -57,6 +54,9 @@ func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, err
 		return nil, err
 	}
 	data := resp.(service.JsonResponse).Data.(*pb.Comment)
+	if data == nil {
+		return nil, str2err(resp.(service.JsonResponse).Err)
+	}
 	return &models.Comment{
 		Text:     data.Text,
 		AuthorID: uint(data.AuthorId),
