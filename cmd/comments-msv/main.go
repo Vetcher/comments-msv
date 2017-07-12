@@ -26,11 +26,8 @@ func startHTTPService(db *models.Database) {
 		service.DecodeRequestOnlyWithID,
 		service.ServeJSON,
 	)
-	postCommentEndpoint := service.PostCommentEndpoint(svc)
-	postCommentEndpoint = service.ErrorLoggingMiddleware(logger)(postCommentEndpoint)
-	postCommentEndpoint = service.TransportLoggingMiddleware(logger)(postCommentEndpoint)
 	handlerPost := httptransport.NewServer(
-		postCommentEndpoint,
+		service.TransportLoggingMiddleware(logger)(service.PostCommentEndpoint(svc)),
 		service.DecodeRequestPostComment,
 		service.ServeJSON,
 	)
@@ -64,11 +61,8 @@ func startGRPCService(db *models.Database) {
 		service.DecodeGRPCRequestWithID,
 		service.EncodeGRPCResponseComment,
 	)
-	postCommentEndpoint := service.PostCommentEndpoint(svc)
-	postCommentEndpoint = service.ErrorLoggingMiddleware(logger)(postCommentEndpoint)
-	postCommentEndpoint = service.TransportLoggingMiddleware(logger)(postCommentEndpoint)
 	handlerPost := grpctransport.NewServer(
-		postCommentEndpoint,
+		service.TransportLoggingMiddleware(logger)(service.PostCommentEndpoint(svc)),
 		service.DecodeGRPCRequestPostComment,
 		service.EncodeGRPCResponseComment,
 	)
