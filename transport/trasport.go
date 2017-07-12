@@ -23,7 +23,7 @@ func (s GRPCServer) GetCommentByID(ctx context.Context, req *pb.RequestWithID) (
 }
 
 func (s GRPCServer) PostComment(ctx context.Context, req *pb.Comment) (*pb.ResponseComment, error) {
-	_, rep, err := s.GetCommentByIDHandler.ServeGRPC(ctx, req)
+	_, rep, err := s.PostCommentHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (s GRPCServer) PostComment(ctx context.Context, req *pb.Comment) (*pb.Respo
 }
 
 func (s GRPCServer) DeleteCommentByID(ctx context.Context, req *pb.RequestWithID) (*pb.ResponseWithBool, error) {
-	_, rep, err := s.GetCommentByIDHandler.ServeGRPC(ctx, req)
+	_, rep, err := s.DeleteCommentByIDHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (s GRPCServer) DeleteCommentByID(ctx context.Context, req *pb.RequestWithID
 }
 
 func (s GRPCServer) GetCommentsByAuthorID(ctx context.Context, req *pb.RequestWithID) (*pb.ResponseCommentsByAuthorID, error) {
-	_, rep, err := s.GetCommentByIDHandler.ServeGRPC(ctx, req)
+	_, rep, err := s.GetCommentsByAuthorIDHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}

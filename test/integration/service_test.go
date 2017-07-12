@@ -46,7 +46,7 @@ func HTTPGet(body interface{}, dest string) ([]byte, error) {
 	return respBody, nil
 }
 
-func TestPostComment(t *testing.T) {
+func TestHTTPPostComment(t *testing.T) {
 	comment := Comment{
 		Text:     CommentText,
 		AuthorID: 1,
@@ -73,7 +73,7 @@ func TestPostComment(t *testing.T) {
 	}
 }
 
-func TestGetComment(t *testing.T) {
+func TestHTTPGetComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}
@@ -100,7 +100,7 @@ func TestGetComment(t *testing.T) {
 	}
 }
 
-func TestGetCommentsForSpecificAuthor(t *testing.T) {
+func TestHTTPGetCommentsForSpecificAuthor(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}
@@ -122,7 +122,7 @@ func TestGetCommentsForSpecificAuthor(t *testing.T) {
 	}
 }
 
-func TestDeleteComment(t *testing.T) {
+func TestHTTPDeleteComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}

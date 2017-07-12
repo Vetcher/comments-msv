@@ -7,6 +7,8 @@ import (
 
 	"net"
 
+	"flag"
+
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/vetcher/comments-msv/models"
@@ -94,6 +96,7 @@ func startGRPCService(db *models.Database) {
 
 func main() {
 	db := models.NewDatabase()
+	flag.Parse()
 	go startHTTPService(db)
 	startGRPCService(db)
 }
