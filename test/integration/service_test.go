@@ -46,7 +46,7 @@ func HTTPGet(body interface{}, dest string) ([]byte, error) {
 	return respBody, nil
 }
 
-func TestPostComment(t *testing.T) {
+func TestHTTPPostComment(t *testing.T) {
 	comment := Comment{
 		Text:     CommentText,
 		AuthorID: 1,
@@ -60,6 +60,9 @@ func TestPostComment(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
+	if c.Err != "" {
+		t.Fatal(c.Err)
+	}
 	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText) {
 		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
 			Data: &Comment{
@@ -70,7 +73,7 @@ func TestPostComment(t *testing.T) {
 	}
 }
 
-func TestGetComment(t *testing.T) {
+func TestHTTPGetComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}
@@ -83,7 +86,9 @@ func TestGetComment(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
-
+	if c.Err != "" {
+		t.Fatal(c.Err)
+	}
 	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText && c.Data.ID == 1) {
 		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
 			Data: &Comment{
@@ -95,7 +100,7 @@ func TestGetComment(t *testing.T) {
 	}
 }
 
-func TestGetCommentsForSpecificAuthor(t *testing.T) {
+func TestHTTPGetCommentsForSpecificAuthor(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}
@@ -117,7 +122,7 @@ func TestGetCommentsForSpecificAuthor(t *testing.T) {
 	}
 }
 
-func TestDeleteComment(t *testing.T) {
+func TestHTTPDeleteComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}
