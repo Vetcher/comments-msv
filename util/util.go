@@ -26,3 +26,10 @@ func Str2Err(str string) error {
 	}
 	return errors.New(str)
 }
+
+func Err2Str(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
+}

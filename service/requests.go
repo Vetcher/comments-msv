@@ -1,6 +1,14 @@
 package service
 
-type RequestOnlyWithID struct {
+type RequestGetCommentByID struct {
+	ID uint `json:"id"`
+}
+
+type RequestGetCommentByAuthorID struct {
+	ID uint `json:"id"`
+}
+
+type RequestDeleteCommentByID struct {
 	ID uint `json:"id"`
 }
 

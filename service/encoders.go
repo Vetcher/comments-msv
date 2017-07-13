@@ -19,26 +19,27 @@ func EncodeGRPCResponseComment(_ context.Context, svcResp interface{}) (interfac
 	if resp.Data == nil {
 		return &pb.ResponseComment{
 			Data: nil,
-			Err:  resp.Err,
+			Err:  util.Err2Str(resp.Err),
 		}, nil
 	}
 	comment := resp.Data.(*models.Comment)
 	return &pb.ResponseComment{
 		Data: &pb.Comment{
-			Id:       uint32(comment.ID),
-			Text:     comment.Text,
-			AuthorId: uint32(comment.AuthorID),
+			Id:        uint32(comment.ID),
+			Text:      comment.Text,
+			AuthorId:  uint32(comment.AuthorID),
+			CreatedAt: comment.CreatedAt.Unix(),
 		},
-		Err: resp.Err,
+		Err: util.Err2Str(resp.Err),
 	}, nil
 }
 
-func EncodeGRPCResponseBool(_ context.Context, svcResp interface{}) (interface{}, error) {
+func EncodeGRPCResponseDeleteCommentByID(_ context.Context, svcResp interface{}) (interface{}, error) {
 	resp := svcResp.(*Response)
 	ok := resp.Data.(bool)
-	return &pb.ResponseWithBool{
+	return &pb.ResponseDeleteByID{
 		Ok:  ok,
-		Err: resp.Err,
+		Err: util.Err2Str(resp.Err),
 	}, nil
 }
 
@@ -46,13 +47,23 @@ func EncodeGRPCResponseCommentsByAuthorID(_ context.Context, svcResp interface{}
 	resp := svcResp.(*Response)
 	return &pb.ResponseCommentsByAuthorID{
 		Comments: util.ConvDBCommentsToPBComments(resp.Data.([]*models.Comment)),
-		Err:      resp.Err,
+		Err:      util.Err2Str(resp.Err),
 	}, nil
 }
 
-func EncodeGRPCRequestOnlyWithID(_ context.Context, svcReq interface{}) (interface{}, error) {
-	req := svcReq.(*RequestOnlyWithID)
-	return &pb.RequestWithID{Id: uint32(req.ID)}, nil
+func EncodeGRPCRequestGetCommentByID(_ context.Context, svcReq interface{}) (interface{}, error) {
+	req := svcReq.(*RequestGetCommentByID)
+	return &pb.RequestGetCommentByID{Id: uint32(req.ID)}, nil
+}
+
+func EncodeGRPCRequestGetCommentByAuthorID(_ context.Context, svcReq interface{}) (interface{}, error) {
+	req := svcReq.(*RequestGetCommentByAuthorID)
+	return &pb.RequestGetCommentByAuthorID{Id: uint32(req.ID)}, nil
+}
+
+func EncodeGRPCRequestDeleteCommentByID(_ context.Context, svcReq interface{}) (interface{}, error) {
+	req := svcReq.(*RequestDeleteCommentByID)
+	return &pb.RequestDeleteCommentByID{Id: uint32(req.ID)}, nil
 }
 
 func EncodeGRPCRequestPostComment(_ context.Context, svcReq interface{}) (interface{}, error) {

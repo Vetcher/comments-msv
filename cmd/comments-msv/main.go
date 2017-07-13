@@ -7,6 +7,8 @@ import (
 
 	"net"
 
+	"flag"
+
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/vetcher/comments-msv/models"
@@ -14,7 +16,6 @@ import (
 	"github.com/vetcher/comments-msv/service/pb"
 	"github.com/vetcher/comments-msv/transport"
 	"google.golang.org/grpc"
-	"flag"
 )
 
 const POSTGRES string = "postgres"
@@ -36,7 +37,7 @@ func startHTTPService(db *models.Database) error {
 	svc := service.NewCommentService(db)
 	handlerGetByID := httptransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.GetCommentEndpoint(svc)),
-		service.DecodeRequestOnlyWithID,
+		service.DecodeRequestGetCommentByID,
 		service.ServeJSON,
 	)
 	handlerPost := httptransport.NewServer(
@@ -46,12 +47,12 @@ func startHTTPService(db *models.Database) error {
 	)
 	handlerDeleteByID := httptransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.DeleteCommentEndpoint(svc)),
-		service.DecodeRequestOnlyWithID,
+		service.DecodeRequestDeleteCommentByID,
 		service.ServeJSON,
 	)
 	handlerGetByAuthorID := httptransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.GetCommentsByAuthorIDEndpoint(svc)),
-		service.DecodeRequestOnlyWithID,
+		service.DecodeRequestGetCommentByAuthorID,
 		service.ServeJSON,
 	)
 	http.Handle("/comment/get", handlerGetByID)
@@ -71,7 +72,7 @@ func startGRPCService(db *models.Database) error {
 	svc := service.NewCommentService(db)
 	handlerGetByID := grpctransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.GetCommentEndpoint(svc)),
-		service.DecodeGRPCRequestWithID,
+		service.DecodeGRPCRequestGetCommentByID,
 		service.EncodeGRPCResponseComment,
 	)
 	handlerPost := grpctransport.NewServer(
@@ -81,12 +82,12 @@ func startGRPCService(db *models.Database) error {
 	)
 	handlerDeleteByID := grpctransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.DeleteCommentEndpoint(svc)),
-		service.DecodeGRPCRequestWithID,
-		service.EncodeGRPCResponseBool,
+		service.DecodeGRPCRequestDeleteCommentByID,
+		service.EncodeGRPCResponseDeleteCommentByID,
 	)
 	handlerGetByAuthorID := grpctransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.GetCommentsByAuthorIDEndpoint(svc)),
-		service.DecodeGRPCRequestWithID,
+		service.DecodeGRPCRequestGetCommentByAuthorID,
 		service.EncodeGRPCResponseCommentsByAuthorID,
 	)
 	server := transport.GRPCServer{

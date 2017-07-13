@@ -3,20 +3,21 @@ syntax = "proto3";
 package pb;
 
 service CommentSVC {
-    rpc GetCommentByID (RequestWithID) returns (ResponseComment) {}
+    rpc GetCommentByID (RequestGetCommentByID) returns (ResponseComment) {}
     rpc PostComment (Comment) returns (ResponseComment) {}
-    rpc DeleteCommentByID (RequestWithID) returns (ResponseWithBool) {}
-    rpc GetCommentsByAuthorID (RequestWithID) returns (ResponseCommentsByAuthorID) {}
+    rpc DeleteCommentByID (RequestDeleteCommentByID) returns (ResponseDeleteByID) {}
+    rpc GetCommentsByAuthorID (RequestGetCommentByAuthorID) returns (ResponseCommentsByAuthorID) {}
 }
 
 message Comment {
     uint32 id = 1;
     string text = 2;
     uint32 author_id = 3;
+    int64 created_at = 4;
 }
 
-message ResponseWithBool {
-    bool ok = 1;
+message ResponseDeleteByID {
+    bool ok = 1; // deleted or not
     string err = 2;
 }
 
@@ -30,6 +31,14 @@ message ResponseCommentsByAuthorID {
     string err = 2;
 }
 
-message RequestWithID {
+message RequestGetCommentByID {
+    uint32 id = 1;
+}
+
+message RequestDeleteCommentByID {
+    uint32 id = 1;
+}
+
+message RequestGetCommentByAuthorID {
     uint32 id = 1;
 }
