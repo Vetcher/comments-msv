@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"log"
-
 	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service/pb"
 	"github.com/vetcher/comments-msv/util"
@@ -25,7 +23,6 @@ func EncodeGRPCResponseComment(_ context.Context, svcResp interface{}) (interfac
 		}, nil
 	}
 	comment := resp.Data.(*models.Comment)
-	log.Println(comment.CreatedAt.Unix())
 	return &pb.ResponseComment{
 		Data: &pb.Comment{
 			Id:        uint32(comment.ID),
@@ -49,7 +46,7 @@ func EncodeGRPCResponseDeleteCommentByID(_ context.Context, svcResp interface{})
 func EncodeGRPCResponseCommentsByAuthorID(_ context.Context, svcResp interface{}) (interface{}, error) {
 	resp := svcResp.(*Response)
 	return &pb.ResponseCommentsByAuthorID{
-		Comments: util.ConvertDBCommentsToPBComments(resp.Data.([]*models.Comment)),
+		Comments: util.ConvertDatabase2PBComments(resp.Data.([]*models.Comment)),
 		Err:      util.Err2Str(resp.Err),
 	}, nil
 }

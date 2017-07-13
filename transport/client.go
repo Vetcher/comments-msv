@@ -10,6 +10,7 @@ import (
 	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service"
 	"github.com/vetcher/comments-msv/service/pb"
+	"github.com/vetcher/comments-msv/util"
 	"google.golang.org/grpc"
 )
 
@@ -44,15 +45,15 @@ func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, err
 	if err != nil {
 		return nil, err
 	}
-	data := resp.(service.Response).Data.(*pb.Comment)
-	if data == nil {
+	imput := resp.(service.Response).Data.(*pb.Comment)
+	if imput == nil {
 		return nil, resp.(service.Response).Err
 	}
 	return &models.Comment{
-		Text:      data.Text,
-		AuthorID:  uint(data.AuthorId),
-		ID:        uint(data.Id),
-		CreatedAt: time.Unix(data.CreatedAt, 0),
+		Text:      imput.Text,
+		AuthorID:  uint(imput.AuthorId),
+		ID:        uint(imput.Id),
+		CreatedAt: time.Unix(imput.CreatedAt, 0),
 	}, resp.(service.Response).Err
 }
 
@@ -71,21 +72,8 @@ func (e endpoints) GetCommentsByAuthorID(id uint) ([]*models.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := resp.(service.Response).Data.([]*pb.Comment)
-	return ConvPBToModelComments(data), resp.(service.Response).Err
-}
-
-func ConvPBToModelComments(data []*pb.Comment) []*models.Comment {
-	var comments []*models.Comment
-	for _, x := range data {
-		comments = append(comments, &models.Comment{
-			AuthorID:  uint(x.AuthorId),
-			Text:      x.Text,
-			ID:        uint(x.Id),
-			CreatedAt: time.Unix(x.CreatedAt, 0),
-		})
-	}
-	return comments
+	input := resp.(service.Response).Data.([]*pb.Comment)
+	return util.ConvertPB2DatabaseComments(input), resp.(service.Response).Err
 }
 
 func NewClient(conn *grpc.ClientConn) service.CommentService {

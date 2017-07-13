@@ -11,9 +11,9 @@ func GetCommentEndpoint(svc CommentService) endpoint.Endpoint {
 		req := request.(RequestGetCommentByID)
 		d, err := svc.GetCommentByID(req.ID)
 		if err != nil {
-			return &Response{nil, err}, nil
+			return nil, err
 		}
-		return &Response{d, nil}, nil
+		return d, nil
 	}
 }
 
@@ -22,9 +22,9 @@ func PostCommentEndpoint(svc CommentService) endpoint.Endpoint {
 		req := request.(RequestPostComment)
 		d, err := svc.PostComment(req.AuthorID, req.Text)
 		if err != nil {
-			return &Response{nil, err}, nil
+			return nil, err
 		}
-		return &Response{d, nil}, nil
+		return d, nil
 	}
 }
 
@@ -33,9 +33,9 @@ func DeleteCommentEndpoint(svc CommentService) endpoint.Endpoint {
 		req := request.(RequestDeleteCommentByID)
 		d, err := svc.DeleteCommentByID(req.ID)
 		if err != nil {
-			return &Response{nil, err}, nil
+			return nil, err
 		}
-		return &Response{d, nil}, nil
+		return d, nil
 	}
 }
 
@@ -44,8 +44,8 @@ func GetCommentsByAuthorIDEndpoint(svc CommentService) endpoint.Endpoint {
 		req := request.(RequestGetCommentByAuthorID)
 		d, err := svc.GetCommentsByAuthorID(req.ID)
 		if err != nil {
-			return &Response{nil, err}, nil
+			return nil, err
 		}
-		return &Response{d, nil}, nil
+		return d, nil
 	}
 }

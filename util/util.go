@@ -5,10 +5,11 @@ import (
 
 	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service/pb"
+	"time"
 )
 
 // можно как-то иначе сделать?
-func ConvertDBCommentsToPBComments(coms []*models.Comment) []*pb.Comment {
+func ConvertDatabase2PBComments(coms []*models.Comment) []*pb.Comment {
 	var converted []*pb.Comment
 	for _, c := range coms {
 		converted = append(converted, &pb.Comment{
@@ -19,6 +20,19 @@ func ConvertDBCommentsToPBComments(coms []*models.Comment) []*pb.Comment {
 		})
 	}
 	return converted
+}
+
+func ConvertPB2DatabaseComments(pbComments []*pb.Comment) []*models.Comment {
+	var comments []*models.Comment
+	for _, x := range pbComments {
+		comments = append(comments, &models.Comment{
+			AuthorID:  uint(x.AuthorId),
+			Text:      x.Text,
+			ID:        uint(x.Id),
+			CreatedAt: time.Unix(x.CreatedAt, 0),
+		})
+	}
+	return comments
 }
 
 func Str2Err(str string) error {
