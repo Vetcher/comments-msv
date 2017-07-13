@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
-	"github.com/jinzhu/gorm"
 	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service"
 	"github.com/vetcher/comments-msv/service/pb"
@@ -27,17 +26,15 @@ func (e endpoints) GetCommentByID(id uint) (*models.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := resp.(service.Response).Data.(*pb.Comment)
-	if data == nil {
+	input := resp.(service.Response).Data.(*pb.Comment)
+	if input == nil {
 		return nil, resp.(service.Response).Err
 	}
 	return &models.Comment{
-		Text:     data.Text,
-		AuthorID: uint(data.AuthorId),
-		Model: gorm.Model{
-			ID:        uint(data.Id),
-			CreatedAt: time.Unix(data.CreatedAt, 0),
-		},
+		Text:      input.Text,
+		AuthorID:  uint(input.AuthorId),
+		ID:        uint(input.Id),
+		CreatedAt: time.Unix(input.CreatedAt, 0),
 	}, resp.(service.Response).Err
 }
 
@@ -52,11 +49,10 @@ func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, err
 		return nil, resp.(service.Response).Err
 	}
 	return &models.Comment{
-		Text:     data.Text,
-		AuthorID: uint(data.AuthorId),
-		Model: gorm.Model{
-			ID: uint(data.Id),
-		},
+		Text:      data.Text,
+		AuthorID:  uint(data.AuthorId),
+		ID:        uint(data.Id),
+		CreatedAt: time.Unix(data.CreatedAt, 0),
 	}, resp.(service.Response).Err
 }
 
@@ -83,11 +79,10 @@ func ConvPBToModelComments(data []*pb.Comment) []*models.Comment {
 	var comments []*models.Comment
 	for _, x := range data {
 		comments = append(comments, &models.Comment{
-			AuthorID: uint(x.AuthorId),
-			Text:     x.Text,
-			Model: gorm.Model{
-				ID: uint(x.Id),
-			},
+			AuthorID:  uint(x.AuthorId),
+			Text:      x.Text,
+			ID:        uint(x.Id),
+			CreatedAt: time.Unix(x.CreatedAt, 0),
 		})
 	}
 	return comments

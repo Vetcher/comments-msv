@@ -1,13 +1,16 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Comment struct {
-	gorm.Model
-	Text     string `json:"text"`
-	AuthorID uint   `gorm:"index" json:"author_id"`
+	ID        uint      `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
+	Text      string     `json:"text"`
+	AuthorID  uint       `gorm:"index" json:"author_id"`
 }
 
 func (db *Database) PostComment(c *Comment) (*Comment, error) {

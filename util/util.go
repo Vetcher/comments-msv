@@ -8,13 +8,14 @@ import (
 )
 
 // можно как-то иначе сделать?
-func ConvDBCommentsToPBComments(coms []*models.Comment) []*pb.Comment {
+func ConvertDBCommentsToPBComments(coms []*models.Comment) []*pb.Comment {
 	var converted []*pb.Comment
 	for _, c := range coms {
 		converted = append(converted, &pb.Comment{
-			Id:       uint32(c.ID),
-			AuthorId: uint32(c.AuthorID),
-			Text:     c.Text,
+			Id:        uint32(c.ID),
+			AuthorId:  uint32(c.AuthorID),
+			Text:      c.Text,
+			CreatedAt: c.CreatedAt.Unix(),
 		})
 	}
 	return converted
