@@ -24,14 +24,16 @@ type ResponseComment struct {
 
 const CommentText = "Testing Comment"
 
-func HTTPGet(body interface{}, dest string) ([]byte, error) {
+var testCommentID uint = 5
+
+func HTTPPost(body interface{}, dest string) ([]byte, error) {
 	client := &http.Client{}
 	b, err := json.Marshal(&body)
 	if err != nil {
 		return nil, fmt.Errorf("Marshal to JSON error: %v", err)
 	}
 	buf := bytes.NewBuffer(b)
-	req, err := http.NewRequest("GET", dest, buf)
+	req, err := http.NewRequest("POST", dest, buf)
 	if err != nil {
 		return nil, fmt.Errorf("can't make request: %v", err)
 	}
@@ -51,7 +53,7 @@ func TestHTTPPostComment(t *testing.T) {
 		Text:     CommentText,
 		AuthorID: 1,
 	}
-	respBody, err := HTTPGet(comment, "http://localhost:8081/comment/post")
+	respBody, err := HTTPPost(comment, "http://localhost:8081/comment/post")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,13 +73,14 @@ func TestHTTPPostComment(t *testing.T) {
 			},
 		})
 	}
+	testCommentID = c.Data.ID
 }
 
 func TestHTTPGetComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
-	}{ID: 1}
-	respBody, err := HTTPGet(id, "http://localhost:8081/comment/get")
+	}{ID: testCommentID}
+	respBody, err := HTTPPost(id, "http://localhost:8081/comment/get")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,12 +92,12 @@ func TestHTTPGetComment(t *testing.T) {
 	if c.Err != "" {
 		t.Fatal(c.Err)
 	}
-	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText && c.Data.ID == 1) {
+	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText && c.Data.ID == testCommentID) {
 		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
 			Data: &Comment{
 				AuthorID: 1,
 				Text:     CommentText,
-				ID:       1,
+				ID:       testCommentID,
 			},
 		})
 	}
@@ -104,7 +107,7 @@ func TestHTTPGetCommentsForSpecificAuthor(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}
-	respBody, err := HTTPGet(id, "http://localhost:8081/comments/author")
+	respBody, err := HTTPPost(id, "http://localhost:8081/comments/author")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,8 +128,8 @@ func TestHTTPGetCommentsForSpecificAuthor(t *testing.T) {
 func TestHTTPDeleteComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
-	}{ID: 1}
-	respBody, err := HTTPGet(id, "http://localhost:8081/comment/del")
+	}{ID: testCommentID}
+	respBody, err := HTTPPost(id, "http://localhost:8081/comment/del")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +146,7 @@ func TestHTTPDeleteComment(t *testing.T) {
 		}{true})
 	}
 	// try to Get
-	respBody, err = HTTPGet(id, "http://localhost:8081/comment/get")
+	respBody, err = HTTPPost(id, "http://localhost:8081/comment/get")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -21,15 +21,3 @@ func TransportLoggingMiddleware(logger *log.Logger) Middleware {
 		}
 	}
 }
-
-func ErrorLoggingMiddleware(logger *log.Logger) Middleware {
-	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-			d, err := next(ctx, request)
-			if err != nil {
-				logger.Printf("Internal Server Error: %v", err)
-			}
-			return d, err
-		}
-	}
-}

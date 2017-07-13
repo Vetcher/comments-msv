@@ -42,7 +42,7 @@ func DecodeGRPCRequestPostComment(_ context.Context, grpcReq interface{}) (inter
 
 func DecodeGRPCResponseComment(_ context.Context, grpcResp interface{}) (interface{}, error) {
 	resp := grpcResp.(*pb.ResponseComment)
-	return JsonResponse{
+	return Response{
 		Data: resp.Data,
 		Err:  resp.Err,
 	}, nil
@@ -50,7 +50,7 @@ func DecodeGRPCResponseComment(_ context.Context, grpcResp interface{}) (interfa
 
 func DecodeGRPCResponseCommentsByAuthorID(_ context.Context, grpcResp interface{}) (interface{}, error) {
 	resp := grpcResp.(*pb.ResponseCommentsByAuthorID)
-	return JsonResponse{
+	return Response{
 		Data: resp.Comments,
 		Err:  resp.Err,
 	}, nil
@@ -58,7 +58,7 @@ func DecodeGRPCResponseCommentsByAuthorID(_ context.Context, grpcResp interface{
 
 func DecodeGRPCResponseBool(_ context.Context, grpcResp interface{}) (interface{}, error) {
 	resp := grpcResp.(*pb.ResponseWithBool)
-	return JsonResponse{
+	return Response{
 		Data: resp.Ok,
 		Err:  resp.Err,
 	}, nil

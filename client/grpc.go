@@ -3,14 +3,13 @@ package client
 import (
 	"context"
 
-	"errors"
-
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/jinzhu/gorm"
 	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service"
 	"github.com/vetcher/comments-msv/service/pb"
+	"github.com/vetcher/comments-msv/util"
 	"google.golang.org/grpc"
 )
 
@@ -21,22 +20,15 @@ type endpoints struct {
 	GetCommentsByAuthorIDEndpoint endpoint.Endpoint
 }
 
-func str2err(str string) error {
-	if str == "" {
-		return nil
-	}
-	return errors.New(str)
-}
-
 func (e endpoints) GetCommentByID(id uint) (*models.Comment, error) {
 	req := service.RequestOnlyWithID{ID: id}
 	resp, err := e.GetCommentByIDEndpoint(context.Background(), &req)
 	if err != nil {
 		return nil, err
 	}
-	data := resp.(service.JsonResponse).Data.(*pb.Comment)
+	data := resp.(service.Response).Data.(*pb.Comment)
 	if data == nil {
-		return nil, str2err(resp.(service.JsonResponse).Err)
+		return nil, util.Str2Err(resp.(service.Response).Err)
 	}
 	return &models.Comment{
 		Text:     data.Text,
@@ -44,7 +36,7 @@ func (e endpoints) GetCommentByID(id uint) (*models.Comment, error) {
 		Model: gorm.Model{
 			ID: uint(data.Id),
 		},
-	}, str2err(resp.(service.JsonResponse).Err)
+	}, util.Str2Err(resp.(service.Response).Err)
 }
 
 func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, error) {
@@ -53,9 +45,9 @@ func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, err
 	if err != nil {
 		return nil, err
 	}
-	data := resp.(service.JsonResponse).Data.(*pb.Comment)
+	data := resp.(service.Response).Data.(*pb.Comment)
 	if data == nil {
-		return nil, str2err(resp.(service.JsonResponse).Err)
+		return nil, util.Str2Err(resp.(service.Response).Err)
 	}
 	return &models.Comment{
 		Text:     data.Text,
@@ -63,7 +55,7 @@ func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, err
 		Model: gorm.Model{
 			ID: uint(data.Id),
 		},
-	}, str2err(resp.(service.JsonResponse).Err)
+	}, util.Str2Err(resp.(service.Response).Err)
 }
 
 func (e endpoints) DeleteCommentByID(id uint) (bool, error) {
@@ -72,7 +64,7 @@ func (e endpoints) DeleteCommentByID(id uint) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return resp.(service.JsonResponse).Data.(bool), str2err(resp.(service.JsonResponse).Err)
+	return resp.(service.Response).Data.(bool), util.Str2Err(resp.(service.Response).Err)
 }
 
 func (e endpoints) GetCommentsByAuthorID(id uint) ([]*models.Comment, error) {
@@ -81,8 +73,8 @@ func (e endpoints) GetCommentsByAuthorID(id uint) ([]*models.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := resp.(service.JsonResponse).Data.([]*pb.Comment)
-	return ConvPBToModelComments(data), str2err(resp.(service.JsonResponse).Err)
+	data := resp.(service.Response).Data.([]*pb.Comment)
+	return ConvPBToModelComments(data), util.Str2Err(resp.(service.Response).Err)
 }
 
 func ConvPBToModelComments(data []*pb.Comment) []*models.Comment {

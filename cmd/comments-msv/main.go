@@ -14,7 +14,22 @@ import (
 	"github.com/vetcher/comments-msv/service/pb"
 	"github.com/vetcher/comments-msv/transport"
 	"google.golang.org/grpc"
+	"flag"
 )
+
+const POSTGRES string = "postgres"
+
+func parseDBConfig() *models.DBConfig {
+	conf := models.DBConfig{
+		User:     flag.String("user", POSTGRES, "User"),
+		Password: flag.String("password", POSTGRES, "User's password"),
+		DBName:   flag.String("db", POSTGRES, "Name of database"),
+		Port:     flag.Uint("port", 5432, "Postgres port"),
+		Host:     flag.String("host", "localhost", "Address of server"),
+	}
+	flag.Parse()
+	return &conf
+}
 
 func startHTTPService(db *models.Database) error {
 	logger := log.New(os.Stdout, "http | ", log.Ltime)
@@ -87,7 +102,7 @@ func startGRPCService(db *models.Database) error {
 }
 
 func main() {
-	db := models.NewDatabase()
+	db := models.NewDatabase(parseDBConfig())
 	errChan := make(chan error)
 	go func() {
 		errChan <- startHTTPService(db)
