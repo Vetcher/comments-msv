@@ -73,12 +73,12 @@ func startGRPCService(db *models.Database) error {
 	handlerGetByID := grpctransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.GetCommentEndpoint(svc)),
 		service.DecodeGRPCRequestGetCommentByID,
-		service.EncodeGRPCResponseComment,
+		service.EncodeGRPCResponseGetCommentByID,
 	)
 	handlerPost := grpctransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.PostCommentEndpoint(svc)),
 		service.DecodeGRPCRequestPostComment,
-		service.EncodeGRPCResponseComment,
+		service.EncodeGRPCResponsePostComment,
 	)
 	handlerDeleteByID := grpctransport.NewServer(
 		service.TransportLoggingMiddleware(logger)(service.DeleteCommentEndpoint(svc)),

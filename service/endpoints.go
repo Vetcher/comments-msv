@@ -10,10 +10,10 @@ func GetCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestGetCommentByID)
 		d, err := svc.GetCommentByID(req.ID)
-		if err != nil {
-			return nil, err
-		}
-		return d, nil
+		return &ResponseGetCommentByID{
+			Comment: d,
+			Err:     err,
+		}, nil
 	}
 }
 
@@ -21,10 +21,10 @@ func PostCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestPostComment)
 		d, err := svc.PostComment(req.AuthorID, req.Text)
-		if err != nil {
-			return nil, err
-		}
-		return d, nil
+		return &ResponsePostComment{
+			Comment: d,
+			Err:     err,
+		}, nil
 	}
 }
 
@@ -32,10 +32,10 @@ func DeleteCommentEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestDeleteCommentByID)
 		d, err := svc.DeleteCommentByID(req.ID)
-		if err != nil {
-			return nil, err
-		}
-		return d, nil
+		return &ResponseDeleteCommentByID{
+			OK:  d,
+			Err: err,
+		}, nil
 	}
 }
 
@@ -43,9 +43,9 @@ func GetCommentsByAuthorIDEndpoint(svc CommentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(RequestGetCommentByAuthorID)
 		d, err := svc.GetCommentsByAuthorID(req.ID)
-		if err != nil {
-			return nil, err
-		}
-		return d, nil
+		return &ResponseGetCommentsByAuthorID{
+			Comments: d,
+			Err:      err,
+		}, nil
 	}
 }

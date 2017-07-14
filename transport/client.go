@@ -3,14 +3,11 @@ package transport
 import (
 	"context"
 
-	"time"
-
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service"
 	"github.com/vetcher/comments-msv/service/pb"
-	"github.com/vetcher/comments-msv/util"
 	"google.golang.org/grpc"
 )
 
@@ -27,16 +24,8 @@ func (e endpoints) GetCommentByID(id uint) (*models.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	input := resp.(service.Response).Data.(*pb.Comment)
-	if input == nil {
-		return nil, resp.(service.Response).Err
-	}
-	return &models.Comment{
-		Text:      input.Text,
-		AuthorID:  uint(input.AuthorId),
-		ID:        uint(input.Id),
-		CreatedAt: time.Unix(input.CreatedAt, 0),
-	}, resp.(service.Response).Err
+	input := resp.(*service.ResponseGetCommentByID)
+	return input.Comment, input.Err
 }
 
 func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, error) {
@@ -45,16 +34,8 @@ func (e endpoints) PostComment(authorId uint, text string) (*models.Comment, err
 	if err != nil {
 		return nil, err
 	}
-	imput := resp.(service.Response).Data.(*pb.Comment)
-	if imput == nil {
-		return nil, resp.(service.Response).Err
-	}
-	return &models.Comment{
-		Text:      imput.Text,
-		AuthorID:  uint(imput.AuthorId),
-		ID:        uint(imput.Id),
-		CreatedAt: time.Unix(imput.CreatedAt, 0),
-	}, resp.(service.Response).Err
+	input := resp.(*service.ResponsePostComment)
+	return input.Comment, input.Err
 }
 
 func (e endpoints) DeleteCommentByID(id uint) (bool, error) {
@@ -63,7 +44,7 @@ func (e endpoints) DeleteCommentByID(id uint) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return resp.(service.Response).Data.(bool), resp.(service.Response).Err
+	return resp.(*service.ResponseDeleteCommentByID).OK, resp.(*service.ResponseDeleteCommentByID).Err
 }
 
 func (e endpoints) GetCommentsByAuthorID(id uint) ([]*models.Comment, error) {
@@ -72,8 +53,8 @@ func (e endpoints) GetCommentsByAuthorID(id uint) ([]*models.Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	input := resp.(service.Response).Data.([]*pb.Comment)
-	return util.ConvertPB2DatabaseComments(input), resp.(service.Response).Err
+	input := resp.(*service.ResponseGetCommentsByAuthorID)
+	return input.Comments, input.Err
 }
 
 func NewClient(conn *grpc.ClientConn) service.CommentService {
@@ -82,7 +63,7 @@ func NewClient(conn *grpc.ClientConn) service.CommentService {
 		"pb.CommentSVC",
 		"GetCommentByID",
 		service.EncodeGRPCRequestGetCommentByID,
-		service.DecodeGRPCResponseComment,
+		service.DecodeGRPCResponseGetCommentByID,
 		pb.ResponseComment{},
 	).Endpoint()
 	postCommentEndpoint := grpctransport.NewClient(
@@ -90,7 +71,7 @@ func NewClient(conn *grpc.ClientConn) service.CommentService {
 		"pb.CommentSVC",
 		"PostComment",
 		service.EncodeGRPCRequestPostComment,
-		service.DecodeGRPCResponseComment,
+		service.DecodeGRPCResponsePostComment,
 		pb.ResponseComment{},
 	).Endpoint()
 	deleteCommentByIDEndpoint := grpctransport.NewClient(

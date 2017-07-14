@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"fmt"
 	"io/ioutil"
 )
 
@@ -26,47 +25,35 @@ const CommentText = "Testing Comment"
 
 var testCommentID uint = 5
 
-func HTTPPost(body interface{}, dest string) ([]byte, error) {
-	client := &http.Client{}
-	b, err := json.Marshal(&body)
-	if err != nil {
-		return nil, fmt.Errorf("Marshal to JSON error: %v", err)
-	}
-	buf := bytes.NewBuffer(b)
-	req, err := http.NewRequest("POST", dest, buf)
-	if err != nil {
-		return nil, fmt.Errorf("can't make request: %v", err)
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("can't send request: %v", err)
-	}
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response Body error: %v", err)
-	}
-	return respBody, nil
-}
-
 func TestHTTPPostComment(t *testing.T) {
 	comment := Comment{
 		Text:     CommentText,
 		AuthorID: 1,
 	}
-	respBody, err := HTTPPost(comment, "http://localhost:8081/comment/post")
+	dest := "http://localhost:8081/comment/post"
+	b, err := json.Marshal(&comment)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Marshal to JSON error: %v", err)
+	}
+	buf := bytes.NewBuffer(b)
+	resp, err := http.Post(dest, "application/json", buf)
+	if err != nil {
+		t.Fatalf("can't do request: %v", err)
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading response Body error: %v", err)
 	}
 	var c ResponseComment
 	err = json.Unmarshal(respBody, &c)
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
-	/*if c.Err != "" {
+	if c.Err != "" {
 		t.Fatal(c.Err)
-	}*/
+	}
 	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText) {
-		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
+		t.Fatalf("\nHave: %v\nExpected: %v", c, ResponseComment{
 			Data: &Comment{
 				AuthorID: 1,
 				Text:     CommentText,
@@ -80,18 +67,28 @@ func TestHTTPGetComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: testCommentID}
-	respBody, err := HTTPPost(id, "http://localhost:8081/comment/get")
+	dest := "http://localhost:8081/comment/get"
+	b, err := json.Marshal(&id)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Marshal to JSON error: %v", err)
+	}
+	buf := bytes.NewBuffer(b)
+	resp, err := http.Post(dest, "application/json", buf)
+	if err != nil {
+		t.Fatalf("can't do request: %v", err)
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading response Body error: %v", err)
 	}
 	var c ResponseComment
 	err = json.Unmarshal(respBody, &c)
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
-	/*if c.Err != "" {
+	if c.Err != "" {
 		t.Fatal(c.Err)
-	}*/
+	}
 	if !(c.Data.AuthorID == 1 && c.Data.Text == CommentText && c.Data.ID == testCommentID) {
 		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
 			Data: &Comment{
@@ -107,9 +104,19 @@ func TestHTTPGetCommentsForSpecificAuthor(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: 1}
-	respBody, err := HTTPPost(id, "http://localhost:8081/comments/author")
+	dest := "http://localhost:8081/comments/author"
+	b, err := json.Marshal(&id)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Marshal to JSON error: %v", err)
+	}
+	buf := bytes.NewBuffer(b)
+	resp, err := http.Post(dest, "application/json", buf)
+	if err != nil {
+		t.Fatalf("can't do request: %v", err)
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading response Body error: %v", err)
 	}
 	var comments struct {
 		Data []*Comment `json:"data"`
@@ -129,9 +136,19 @@ func TestHTTPDeleteComment(t *testing.T) {
 	id := struct {
 		ID uint `json:"id"`
 	}{ID: testCommentID}
-	respBody, err := HTTPPost(id, "http://localhost:8081/comment/del")
+	dest := "http://localhost:8081/comment/del"
+	b, err := json.Marshal(&id)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Marshal to JSON error: %v", err)
+	}
+	buf := bytes.NewBuffer(b)
+	resp, err := http.Post(dest, "application/json", buf)
+	if err != nil {
+		t.Fatalf("can't do request: %v", err)
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading response Body error: %v", err)
 	}
 	var c struct {
 		Data bool `json:"data"`
@@ -146,19 +163,29 @@ func TestHTTPDeleteComment(t *testing.T) {
 		}{true})
 	}
 	// try to Get
-	respBody, err = HTTPPost(id, "http://localhost:8081/comment/get")
+	dest = "http://localhost:8081/comment/get"
+	b, err = json.Marshal(&id)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Marshal to JSON error: %v", err)
+	}
+	buf = bytes.NewBuffer(b)
+	resp, err = http.Post(dest, "application/json", buf)
+	if err != nil {
+		t.Fatalf("can't do request: %v", err)
+	}
+	respBody, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading response Body error: %v", err)
 	}
 	var respC ResponseComment
 	err = json.Unmarshal(respBody, &respC)
 	if err != nil {
 		t.Fatalf("Unmarshal error: %v", err)
 	}
-	/*if respC.Err == "database error: record not found" && respC.Data != nil {
+	if respC.Err == "database error: record not found" && respC.Data != nil {
 		t.Fatalf("Have: %v\nExpected: %v", c, ResponseComment{
 			Data: nil,
 			Err:  "database error: record not found",
 		})
-	}*/
+	}
 }

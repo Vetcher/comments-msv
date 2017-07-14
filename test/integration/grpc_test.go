@@ -3,8 +3,8 @@ package service
 import (
 	"testing"
 
-	"github.com/vetcher/comments-msv/client"
 	"github.com/vetcher/comments-msv/service"
+	client "github.com/vetcher/comments-msv/transport"
 	"google.golang.org/grpc"
 )
 
@@ -57,7 +57,7 @@ func TestEndpoints_DeleteCommentByID(t *testing.T) {
 	if !ok {
 		t.Fatalf("Response schould be `true`")
 	}
-	_, err = grpcClient.GetCommentByID(1)
+	_, err = grpcClient.GetCommentByID(testCommentID)
 	if err == nil || err.Error() != "database error: record not found" {
 		t.Fatalf("Have: `%v`\nExpected: `%v`", err, "database error: record not found")
 	}

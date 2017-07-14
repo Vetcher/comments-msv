@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"time"
+
+	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service/pb"
 	"github.com/vetcher/comments-msv/util"
 )
@@ -69,26 +72,56 @@ func DecodeGRPCRequestPostComment(_ context.Context, grpcReq interface{}) (inter
 	}, nil
 }
 
-func DecodeGRPCResponseComment(_ context.Context, grpcResp interface{}) (interface{}, error) {
+func DecodeGRPCResponsePostComment(_ context.Context, grpcResp interface{}) (interface{}, error) {
 	resp := grpcResp.(*pb.ResponseComment)
-	return Response{
-		Data: resp.Data,
-		Err:  util.Str2Err(resp.Err),
+	if resp.Data == nil {
+		return &ResponsePostComment{
+			Comment: nil,
+			Err:     util.Str2Err(resp.Err),
+		}, nil
+	}
+	return &ResponsePostComment{
+		Comment: &models.Comment{
+			ID:        uint(resp.Data.Id),
+			Text:      resp.Data.Text,
+			CreatedAt: time.Unix(resp.Data.CreatedAt, 0),
+			AuthorID:  uint(resp.Data.AuthorId),
+		},
+		Err: util.Str2Err(resp.Err),
+	}, nil
+}
+
+func DecodeGRPCResponseGetCommentByID(_ context.Context, grpcResp interface{}) (interface{}, error) {
+	resp := grpcResp.(*pb.ResponseComment)
+	if resp.Data == nil {
+		return &ResponseGetCommentByID{
+			Comment: nil,
+			Err:     util.Str2Err(resp.Err),
+		}, nil
+	}
+	return &ResponseGetCommentByID{
+		Comment: &models.Comment{
+			ID:        uint(resp.Data.Id),
+			Text:      resp.Data.Text,
+			CreatedAt: time.Unix(resp.Data.CreatedAt, 0),
+			AuthorID:  uint(resp.Data.AuthorId),
+		},
+		Err: util.Str2Err(resp.Err),
 	}, nil
 }
 
 func DecodeGRPCResponseCommentsByAuthorID(_ context.Context, grpcResp interface{}) (interface{}, error) {
 	resp := grpcResp.(*pb.ResponseCommentsByAuthorID)
-	return Response{
-		Data: resp.Comments,
-		Err:  util.Str2Err(resp.Err),
+	return &ResponseGetCommentsByAuthorID{
+		Comments: util.ConvertPB2DatabaseComments(resp.Comments),
+		Err:      util.Str2Err(resp.Err),
 	}, nil
 }
 
 func DecodeGRPCResponseDeleteCommentByID(_ context.Context, grpcResp interface{}) (interface{}, error) {
 	resp := grpcResp.(*pb.ResponseDeleteByID)
-	return Response{
-		Data: resp.Ok,
-		Err:  util.Str2Err(resp.Err),
+	return &ResponseDeleteCommentByID{
+		OK:  resp.Ok,
+		Err: util.Str2Err(resp.Err),
 	}, nil
 }

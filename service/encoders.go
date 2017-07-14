@@ -5,48 +5,86 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/vetcher/comments-msv/models"
 	"github.com/vetcher/comments-msv/service/pb"
 	"github.com/vetcher/comments-msv/util"
 )
 
 func ServeJSON(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	switch response.(type) {
+	case *ResponseGetCommentByID:
+		response = ResponseJSON{
+			Data: response.(*ResponseGetCommentByID).Comment,
+			Err:  util.Err2Str(response.(*ResponseGetCommentByID).Err),
+		}
+	case *ResponsePostComment:
+		response = ResponseJSON{
+			Data: response.(*ResponsePostComment).Comment,
+			Err:  util.Err2Str(response.(*ResponsePostComment).Err),
+		}
+	case *ResponseGetCommentsByAuthorID:
+		response = ResponseJSON{
+			Data: response.(*ResponseGetCommentsByAuthorID).Comments,
+			Err:  util.Err2Str(response.(*ResponseGetCommentsByAuthorID).Err),
+		}
+	case *ResponseDeleteCommentByID:
+		response = ResponseJSON{
+			Data: response.(*ResponseDeleteCommentByID).OK,
+			Err:  util.Err2Str(response.(*ResponseDeleteCommentByID).Err),
+		}
+	}
 	return json.NewEncoder(w).Encode(response)
 }
 
-func EncodeGRPCResponseComment(_ context.Context, svcResp interface{}) (interface{}, error) {
-	resp := svcResp.(*Response)
-	if resp.Data == nil {
+func EncodeGRPCResponseGetCommentByID(_ context.Context, svcResp interface{}) (interface{}, error) {
+	resp := svcResp.(*ResponseGetCommentByID)
+	if resp.Comment == nil {
 		return &pb.ResponseComment{
 			Data: nil,
 			Err:  util.Err2Str(resp.Err),
 		}, nil
 	}
-	comment := resp.Data.(*models.Comment)
 	return &pb.ResponseComment{
 		Data: &pb.Comment{
-			Id:        uint32(comment.ID),
-			Text:      comment.Text,
-			AuthorId:  uint32(comment.AuthorID),
-			CreatedAt: comment.CreatedAt.Unix(),
+			Id:        uint32(resp.Comment.ID),
+			Text:      resp.Comment.Text,
+			AuthorId:  uint32(resp.Comment.AuthorID),
+			CreatedAt: resp.Comment.CreatedAt.Unix(),
+		},
+		Err: util.Err2Str(resp.Err),
+	}, nil
+}
+
+func EncodeGRPCResponsePostComment(_ context.Context, svcResp interface{}) (interface{}, error) {
+	resp := svcResp.(*ResponsePostComment)
+	if resp.Comment == nil {
+		return &pb.ResponseComment{
+			Data: nil,
+			Err:  util.Err2Str(resp.Err),
+		}, nil
+	}
+	return &pb.ResponseComment{
+		Data: &pb.Comment{
+			Id:        uint32(resp.Comment.ID),
+			Text:      resp.Comment.Text,
+			AuthorId:  uint32(resp.Comment.AuthorID),
+			CreatedAt: resp.Comment.CreatedAt.Unix(),
 		},
 		Err: util.Err2Str(resp.Err),
 	}, nil
 }
 
 func EncodeGRPCResponseDeleteCommentByID(_ context.Context, svcResp interface{}) (interface{}, error) {
-	resp := svcResp.(*Response)
-	ok := resp.Data.(bool)
+	resp := svcResp.(*ResponseDeleteCommentByID)
 	return &pb.ResponseDeleteByID{
-		Ok:  ok,
+		Ok:  resp.OK,
 		Err: util.Err2Str(resp.Err),
 	}, nil
 }
 
 func EncodeGRPCResponseCommentsByAuthorID(_ context.Context, svcResp interface{}) (interface{}, error) {
-	resp := svcResp.(*Response)
+	resp := svcResp.(*ResponseGetCommentsByAuthorID)
 	return &pb.ResponseCommentsByAuthorID{
-		Comments: util.ConvertDatabase2PBComments(resp.Data.([]*models.Comment)),
+		Comments: util.ConvertDatabase2PBComments(resp.Comments),
 		Err:      util.Err2Str(resp.Err),
 	}, nil
 }
